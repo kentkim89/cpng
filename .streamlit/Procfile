@@ -1,0 +1,1 @@
+web: bash .streamlit/setup.sh && streamlit run cpng_monitor.py
