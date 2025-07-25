@@ -1,6 +1,6 @@
 import requests
 from requests.exceptions import HTTPError
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, Error as PWError
 
 
 def fetch_page(url: str) -> str:
@@ -24,7 +24,14 @@ def fetch_page(url: str) -> str:
                     content = page.content()
                     browser.close()
                     return content
-            except Exception as pw_err:
+            except PWError as pw_err:
+                # Playwright 브라우저가 설치되지 않은 경우 가이드 메시지 출력
+                msg = str(pw_err)
+                if "Executable doesn't exist" in msg:
+                    raise RuntimeError(
+                        "Playwright 브라우저 실행 파일을 찾을 수 없습니다.\n"
+                        "환경에서 'playwright install' 명령을 실행해 브라우저를 설치해 주세요."
+                    )
                 raise RuntimeError(f"Playwright error: {pw_err}")
         raise RuntimeError(f"HTTP error occurred: {http_err}")
     except Exception as err:
